@@ -1,31 +1,17 @@
 from pathlib import Path
 import json
-import os
 import sys
 from datetime import datetime
-from dotenv import load_dotenv
+
+import ollama
 from pypdf import PdfReader
-from google import genai
 
 
 # -----------------------------
-# 1. Load environment variables
+# 1. Choose the local AI model
 # -----------------------------
-print("[1] Loading environment...")
-
-ROOT_DIR = Path(__file__).resolve().parent.parent
-ENV_FILE = ROOT_DIR / ".env"
-
-load_dotenv(ENV_FILE)
-
-api_key = os.getenv("GEMINI_API_KEY")
-
-if not api_key:
-    print("ERROR: GEMINI_API_KEY was not found.")
-    print(f"Checked: {ENV_FILE}")
-    raise SystemExit(1)
-
-print("OK: Gemini API key found.")
+MODEL = "qwen2.5:7b"   # use "llama3.2:3b" if this is too slow
+print(f"[1] Using local model: {MODEL}")
 
 
 # -----------------------------
@@ -72,11 +58,9 @@ if not text.strip():
 
 
 # -----------------------------
-# 4. Send document to Gemini
+# 4. Send document to the local model
 # -----------------------------
-print("[4] Sending document to Gemini...")
-
-client = genai.Client(api_key=api_key)
+print(f"[4] Sending document to {MODEL} (this can take a minute)...")
 
 prompt = f"""
 You are a decision extraction engine.
@@ -91,8 +75,10 @@ Read the following meeting/document text and identify:
 6. Alternatives considered, if mentioned
 7. Assumptions: things the team is taking as true without proof
 8. Risks: things that could go wrong because of the decision
+9. Summary: a short paragraph of 4-6 sentences explaining the decision in plain language: what was decided, why, who owns it, what else was considered and what to watch out for
 
 Only include assumptions and risks that the document actually states or clearly implies. If there are none, leave the list empty. Do not make them up.
+The summary must only use information from the document.
 
 Return ONLY valid JSON.
 
@@ -102,6 +88,7 @@ Use exactly this structure:
   "decisions": [
     {{
       "decision": "",
+      "summary": "",
       "reason": "",
       "owner": "",
       "status": "",
@@ -118,20 +105,27 @@ DOCUMENT:
 {text}
 """
 
-response = client.models.generate_content(
-        model="gemini-flash-lite-latest",
-    contents=prompt
-)
+try:
+    response = ollama.chat(
+        model=MODEL,
+        messages=[{"role": "user", "content": prompt}],
+        format="json",
+        options={"num_ctx": 8192, "temperature": 0}
+    )
+except Exception as e:
+    print("ERROR: Could not reach Ollama. Is it running? (llama icon near the clock)")
+    print(e)
+    raise SystemExit(1)
 
-print("OK: Gemini response received.")
+print("OK: Model response received.")
 
 
 # -----------------------------
-# 5. Parse Gemini response
+# 5. Parse model response
 # -----------------------------
-print("[5] Parsing Gemini response...")
+print("[5] Parsing model response...")
 
-raw_response = response.text.strip()
+raw_response = response["message"]["content"].strip()
 
 if raw_response.startswith("```"):
     raw_response = raw_response.replace("```json", "", 1)
@@ -142,11 +136,10 @@ try:
     extracted_data = json.loads(raw_response)
 
 except json.JSONDecodeError:
-    print("ERROR: Gemini did not return valid JSON.")
-    print("\nGemini returned:")
+    print("ERROR: The model did not return valid JSON.")
+    print("\nModel returned:")
     print(raw_response)
     raise SystemExit(1)
-
 
 # -----------------------------
 # 6. Save output.json
@@ -196,4 +189,4 @@ print(f"   Total decisions stored: {len(memory['decisions'])}")
 # 7. Done
 # -----------------------------
 print("\nDECISION EXTRACTION COMPLETE!")
-print("PDF -> Gemini -> output.json")
+print("PDF -> Ollama (local) -> output.json")

@@ -1,8 +1,11 @@
 @import "tailwindcss";
 
+/* lets classes like "light:hidden" apply only in light mode */
+@custom-variant light (&:where(.light, .light *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #080b12;
+  --foreground: #ededed;
 }
 
 @theme inline {
@@ -12,11 +15,51 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Page background and text that must stay white on violet buttons */
+@theme {
+  --color-page: #080b12;
+  --color-on-accent: #ffffff;
+}
+
+/*
+  LIGHT MODE
+  The pages are written with dark-mode colours (text-white, bg-white/5,
+  text-gray-400, ...). In light mode we swap what those colour names mean,
+  so every page switches without rewriting each class.
+*/
+html.light {
+  --background: #f5f6fa;
+  --foreground: #111318;
+  --color-page: #f5f6fa;
+
+  /* "white" text and white tints become dark */
+  --color-white: #111318;
+  /* "black" panels become white */
+  --color-black: #ffffff;
+
+  /* Secondary text gets darker so it stays readable on a light background */
+  --color-gray-200: #1f2937;
+  --color-gray-300: #374151;
+  --color-gray-400: #4b5563;
+  --color-gray-500: #6b7280;
+  --color-gray-600: #6b7280;
+
+  /* Pale accent text becomes a deeper shade */
+  --color-violet-300: #6d28d9;
+  --color-violet-400: #7c3aed;
+  --color-emerald-300: #047857;
+  --color-amber-100: #78350f;
+  --color-amber-200: #92400e;
+  --color-amber-300: #b45309;
+  --color-red-300: #b91c1c;
+  --color-red-400: #dc2626;
+  --color-sky-300: #0369a1;
+
+  color-scheme: light;
+}
+
+html {
+  color-scheme: dark;
 }
 
 body {

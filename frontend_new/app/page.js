@@ -1,60 +1,18 @@
 "use client";
 
 import Link from "next/link";
+import Navbar from "./components/Navbar";
 
 export default function Home() {
   return (
-    <main className="min-h-screen bg-[#080b12] text-white">
+    <main className="min-h-screen bg-page text-white">
 
       {/* Background glow */}
       <div className="pointer-events-none fixed inset-0 overflow-hidden">
         <div className="absolute left-1/2 top-[-250px] h-[600px] w-[800px] -translate-x-1/2 rounded-full bg-violet-600/10 blur-3xl" />
       </div>
 
-      {/* Navbar */}
-      <nav className="relative z-10 flex items-center justify-between border-b border-white/10 px-8 py-5">
-
-        <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 font-bold text-lg">
-            D
-          </div>
-
-          <div>
-            <h1 className="font-semibold tracking-tight">
-              DecisionVault
-            </h1>
-
-            <p className="text-xs text-gray-500">
-              Organizational Memory
-            </p>
-          </div>
-        </Link>
-
-        <div className="hidden items-center gap-2 md:flex">
-
-          <Link
-            href="/upload"
-            className="rounded-lg px-4 py-2 text-sm text-gray-400 hover:bg-white/5 hover:text-white"
-          >
-            Documents
-          </Link>
-
-          <Link
-            href="/ask"
-            className="rounded-lg px-4 py-2 text-sm text-gray-400 hover:bg-white/5 hover:text-white"
-          >
-            Ask DecisionVault
-          </Link>
-
-          <Link
-            href="/decisions"
-            className="rounded-lg px-4 py-2 text-sm text-gray-400 hover:bg-white/5 hover:text-white"
-          >
-            Decisions
-          </Link>
-
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero */}
       <section className="relative z-10 mx-auto max-w-6xl px-6 py-20">
@@ -84,7 +42,7 @@ export default function Home() {
 
             <Link
               href="/upload"
-              className="rounded-xl bg-violet-600 px-7 py-4 text-center text-sm font-semibold text-white shadow-lg shadow-violet-600/20 hover:bg-violet-500"
+              className="rounded-xl bg-violet-600 px-7 py-4 text-center text-sm font-semibold text-on-accent shadow-lg shadow-violet-600/20 hover:bg-violet-500"
             >
               Upload a Document
             </Link>
