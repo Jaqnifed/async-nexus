@@ -29,8 +29,13 @@ You may answer questions about:
 - Reasons
 - Owners
 - Statuses
+- Assumptions
+- Risks
+- Action items
+- Alternatives
 
 using ONLY the information below.
+Each decision has a "source" field with the PDF it came from. At the end of every answer, add the source in brackets, like this: (Source: meeting_hosting.pdf). If the answer uses more than one decision, list every source.
 
 MEMORY:
 

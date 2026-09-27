@@ -2,7 +2,7 @@ from pathlib import Path
 import json
 import os
 import sys
-
+from datetime import datetime
 from dotenv import load_dotenv
 from pypdf import PdfReader
 from google import genai
@@ -89,6 +89,10 @@ Read the following meeting/document text and identify:
 4. Stakeholders/owners involved
 5. Status of each decision
 6. Alternatives considered, if mentioned
+7. Assumptions: things the team is taking as true without proof
+8. Risks: things that could go wrong because of the decision
+
+Only include assumptions and risks that the document actually states or clearly implies. If there are none, leave the list empty. Do not make them up.
 
 Return ONLY valid JSON.
 
@@ -102,7 +106,9 @@ Use exactly this structure:
       "owner": "",
       "status": "",
       "action_items": [],
-      "alternatives": []
+      "alternatives": [],
+      "assumptions": [],
+      "risks": []
     }}
   ]
 }}
@@ -145,12 +151,45 @@ except json.JSONDecodeError:
 # -----------------------------
 # 6. Save output.json
 # -----------------------------
-print("[6] Saving output.json...")
+print("[6] Adding decisions to output.json...")
+
+# Load what's already saved (or start empty the first time)
+if OUTPUT_FILE.exists():
+    try:
+        with open(OUTPUT_FILE, "r", encoding="utf-8") as f:
+            memory = json.load(f)
+    except json.JSONDecodeError:
+        # Stop instead of overwriting, so saved decisions are never wiped
+        print("ERROR: output.json is damaged. Fix or delete it, then retry.")
+        raise SystemExit(1)
+else:
+    memory = {"decisions": []}
+
+memory.setdefault("decisions", [])
+
+source_name = PDF_FILE.name
+added_at = datetime.now().isoformat(timespec="seconds")
+
+# If this same PDF was uploaded before, remove its old decisions
+# so re-uploading doesn't create duplicates
+memory["decisions"] = [
+    d for d in memory["decisions"] if d.get("source") != source_name
+]
+
+new_decisions = extracted_data.get("decisions", [])
+
+# Tag each decision with where it came from and when
+for d in new_decisions:
+    d["source"] = source_name
+    d["added_at"] = added_at
+
+memory["decisions"].extend(new_decisions)
 
 with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-    json.dump(extracted_data, f, indent=2, ensure_ascii=False)
+    json.dump(memory, f, indent=2, ensure_ascii=False)
 
-print(f"OK: Saved output.json")
+print(f"OK: Added {len(new_decisions)} decisions from {source_name}")
+print(f"   Total decisions stored: {len(memory['decisions'])}")
 
 
 # -----------------------------
