@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Navbar from "../components/Navbar";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "/api";
 
 export default function UploadPage() {
   const router = useRouter();
@@ -51,7 +51,7 @@ export default function UploadPage() {
 
     try {
       const response = await fetch(`${API_URL}/documents`);
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
       const match = (data.documents || []).find(
         (doc) => doc.source === file.name
       );
@@ -82,13 +82,14 @@ export default function UploadPage() {
         body: formData,
       });
 
-      const data = await response.json();
+      // If the backend is off, the reply is not JSON
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(
           typeof data.detail === "string"
             ? data.detail
-            : data.detail?.message || "Upload failed"
+            : data.detail?.message || "Could not reach the backend. Is it running on port 8000?"
         );
       }
 

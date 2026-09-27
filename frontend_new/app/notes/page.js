@@ -5,7 +5,7 @@ import Link from "next/link";
 import Navbar from "../components/Navbar";
 import Expandable from "../components/Expandable";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "/api";
 
 // Pick a badge colour from the status text
 function statusStyle(status = "") {
@@ -55,14 +55,30 @@ function DecisionCard({ d }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-violet-400">
-            Decision
-          </p>
-          <h4 className="mt-1 text-lg font-semibold leading-7 text-white">
-            {d.decision || "Untitled decision"}
-          </h4>
-        </div>
+        {d.topic ? (
+          // Topic as the heading, the decision underneath
+          <div>
+            <h4 className="text-lg font-semibold leading-7 text-white">
+              {d.topic}
+            </h4>
+            <p className="mt-1 text-[15px] leading-6 text-gray-300">
+              <span className="mr-1.5 text-[11px] font-semibold uppercase tracking-wider text-violet-400">
+                Decision:
+              </span>
+              {d.decision || "Untitled decision"}
+            </p>
+          </div>
+        ) : (
+          // Older notes saved before topics existed
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-wider text-violet-400">
+              Decision
+            </p>
+            <h4 className="mt-1 text-lg font-semibold leading-7 text-white">
+              {d.decision || "Untitled decision"}
+            </h4>
+          </div>
+        )}
 
         {d.status && (
           <span

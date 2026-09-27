@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import Navbar from "../components/Navbar";
 import Expandable from "../components/Expandable";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL = "/api";
 
 // Split the model's reply into: a one-line answer, the context paragraph,
 // and the list of sources, e.g. "(Source: demo.pdf)"
@@ -102,11 +102,14 @@ export default function AskPage() {
         body: JSON.stringify({ question: q, history }),
       });
 
-      const data = await response.json();
+      // If the backend is off, the reply is not JSON
+      const data = await response.json().catch(() => ({}));
 
       if (!response.ok) {
         throw new Error(
-          typeof data.detail === "string" ? data.detail : "Something went wrong."
+          typeof data.detail === "string"
+            ? data.detail
+            : "Could not reach the backend. Is it running on port 8000?"
         );
       }
 
