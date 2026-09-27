@@ -1,0 +1,23 @@
+# Environment / secrets
+.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Backend generated/uploaded files
+backend/uploads/
+backend/output.json
+backend/meeting_notes.pdf
+
+# Next.js
+.next/
+out/
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
