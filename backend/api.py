@@ -55,7 +55,7 @@ def load_memory():
 @app.get("/")
 def home():
     return {
-        "message": "DecisionVault API is running"
+        "message": "Nexus API is running"
     }
 
 
